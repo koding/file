@@ -1,5 +1,7 @@
 # File [![GoDoc](https://godoc.org/github.com/koding/file?status.png)](http://godoc.org/github.com/koding/file)
 
+*WIP, DO NOT USE IN PRODUCTION*
+
 File includes several useful file related helper functions. Especially common
 tasks like copying a file or directory, checking if a file exists, etc. are
 not easy to write in Go.

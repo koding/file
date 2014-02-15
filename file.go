@@ -3,72 +3,32 @@ package file
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"os"
-	"path/filepath"
-	"strings"
 )
 
-// Copy copies the file or directory from source path to destination path.
-// Directories are copied recursively. Copy does not handle symlinks currently.
-func Copy(src, dst string) error {
-	if dst == "." {
-		dst = filepath.Base(src)
+// FileInfo describes a file. It's a wrapper around os.FileInfo.
+type FileInfo struct {
+	Exists bool
+	os.FileInfo
+}
+
+// Stat returns a FileInfo describing the named file. It's a wrapper around os.Stat.
+func Stat(file string) (*FileInfo, error) {
+	fi, err := os.Stat(file)
+	if err == nil {
+		f := &FileInfo{Exists: true}
+		f.FileInfo = fi
+		return f, nil
 	}
 
-	if src == dst {
-		return fmt.Errorf("%s and %s are identical (not copied).", src, dst)
+	if os.IsNotExist(err) {
+		f := &FileInfo{Exists: false}
+		f.FileInfo = nil
+		return f, nil
 	}
 
-	if !Exists(src) {
-		return fmt.Errorf("%s: no such file or directory.", src)
-	}
-
-	if Exists(dst) && IsFile(dst) {
-		return fmt.Errorf("%s is a directory (not copied).", src)
-	}
-
-	srcBase, _ := filepath.Split(src)
-	walks := 0
-
-	// dstPath returns the rewritten destination path for the given source path
-	dstPath := func(srcPath string) string {
-		// some/random/long/path/example/hello.txt -> example/hello.txt
-		srcPath = strings.TrimPrefix(srcPath, srcBase)
-
-		// example/hello.txt -> destination/example/hello.txt
-		if walks != 0 {
-			return filepath.Join(dst, srcPath)
-		}
-
-		// hello.txt -> example/hello.txt
-		if Exists(dst) && !IsFile(dst) {
-			return filepath.Join(dst, filepath.Base(srcPath))
-		}
-
-		// hello.txt -> test.txt
-		return dst
-	}
-
-	filepath.Walk(src, func(srcPath string, file os.FileInfo, err error) error {
-		defer func() { walks++ }()
-
-		if file.IsDir() {
-			fmt.Printf("copy dir from '%s' to '%s'\n", srcPath, dstPath(srcPath))
-			os.MkdirAll(dstPath(srcPath), 0755)
-		} else {
-			fmt.Printf("copy file from '%s' to '%s'\n", srcPath, dstPath(srcPath))
-			err = copyFile(srcPath, dstPath(srcPath))
-			if err != nil {
-				fmt.Println(err)
-			}
-		}
-
-		return nil
-	})
-
-	return nil
+	return nil, err
 }
 
 // IsFile checks wether the given file is a directory or not. It panics if an
