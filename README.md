@@ -1,4 +1,4 @@
-# File [![GoDoc](https://godoc.org/github.com/koding/file?status.png)](http://godoc.org/github.com/koding/file) [![Build Status](https://travis-ci.org/koding/file.png)](https://travis-ci.org/koding/file)
+# File [![GoDoc](https://godoc.org/github.com/koding/file?status.png)](http://godoc.org/github.com/koding/file)
 
 File includes several useful file related helper functions. Especially common
 tasks like copying a file or directory, checking if a file exists, etc. are
